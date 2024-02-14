@@ -1,10 +1,12 @@
 import { BsBell, BsBookmark, BsEnvelope, BsTwitter } from 'react-icons/bs'
 
-import React from 'react'
+import React, { useCallback } from 'react'
 import { BiHash, BiHomeCircle, BiMoney, BiUser } from 'react-icons/bi'
 
 import FeedCard from '@/components/FeedCard'
 import { SlOptions } from 'react-icons/sl'
+
+import { CredentialResponse, GoogleLogin } from '@react-oauth/google'
 
 interface TwitterSidebarButton {
   title: string
@@ -47,6 +49,9 @@ const SidebarMenuItems: TwitterSidebarButton[] = [
 ]
 
 export default function Home() {
+  const handleLoginWithGoogle = useCallback((cred: CredentialResponse) => {},
+  [])
+
   return (
     <main className='  grid grid-cols-12 h-screen container  mx-auto px-24  pt-2 '>
       <div className=' col-span-3 ml-10'>
@@ -80,7 +85,16 @@ export default function Home() {
         <FeedCard />
         <FeedCard />
       </div>
-      <div className=' col-span-3'></div>
+      <div className=' col-span-3'>
+        <div className='px-5 py-2 w-fit bg-slate-700 rounded-lg'>
+          <h1 className='text-xl'>New to twitter?</h1>
+          <GoogleLogin
+            onSuccess={(crediential) => {
+              console.log(crediential)
+            }}
+          />
+        </div>
+      </div>
     </main>
   )
 }
