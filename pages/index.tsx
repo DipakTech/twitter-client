@@ -7,6 +7,9 @@ import FeedCard from '@/components/FeedCard'
 import { SlOptions } from 'react-icons/sl'
 
 import { CredentialResponse, GoogleLogin } from '@react-oauth/google'
+import toast from 'react-hot-toast'
+import { graphqqlClient } from '@/clients/api'
+import { verifyUserGoogleTokenQuery } from '@/graphql/query/user'
 
 interface TwitterSidebarButton {
   title: string
@@ -48,12 +51,29 @@ const SidebarMenuItems: TwitterSidebarButton[] = [
   },
 ]
 
-export default function Home() {
-  const handleLoginWithGoogle = useCallback((cred: CredentialResponse) => {},
-  [])
+const Home: React.FC = () => {
+  const handleLoginWithGoogle = useCallback(
+    async (cred: CredentialResponse) => {
+      const googleToken = cred.credential
+      if (!googleToken) return toast.error('Google token not found')
+
+      const { verifyGoogleToken } = await graphqqlClient.request(
+        verifyUserGoogleTokenQuery,
+        {
+          token: googleToken,
+        }
+      )
+
+      toast.success('Verified successfully')
+
+      if (verifyGoogleToken)
+        window.localStorage.setItem('__twitter_token', googleToken)
+    },
+    []
+  )
 
   return (
-    <main className='  grid grid-cols-12 h-screen container  mx-auto px-24  pt-2 '>
+    <main className='grid grid-cols-12 h-screen container  mx-auto px-24  pt-2 '>
       <div className=' col-span-3 ml-10'>
         <div className='text-3xl h-fit w-fit hover:bg-gray-600 p-2 rounded-full cursor-pointer transition-all'>
           <BsTwitter />
@@ -88,13 +108,10 @@ export default function Home() {
       <div className=' col-span-3'>
         <div className='px-5 py-2 w-fit bg-slate-700 rounded-lg'>
           <h1 className='text-xl'>New to twitter?</h1>
-          <GoogleLogin
-            onSuccess={(crediential) => {
-              console.log(crediential)
-            }}
-          />
+          <GoogleLogin onSuccess={handleLoginWithGoogle} />
         </div>
       </div>
     </main>
   )
 }
+export default Home
