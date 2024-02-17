@@ -10,6 +10,9 @@ import { CredentialResponse, GoogleLogin } from '@react-oauth/google'
 import toast from 'react-hot-toast'
 import { graphqqlClient } from '@/clients/api'
 import { verifyUserGoogleTokenQuery } from '@/graphql/query/user'
+import { useCurrentUser } from '@/hooks/user'
+import { useQueryClient } from '@tanstack/react-query'
+import Image from 'next/image'
 
 interface TwitterSidebarButton {
   title: string
@@ -52,6 +55,9 @@ const SidebarMenuItems: TwitterSidebarButton[] = [
 ]
 
 const Home: React.FC = () => {
+  const { user } = useCurrentUser()
+  const queryClient = useQueryClient()
+
   const handleLoginWithGoogle = useCallback(
     async (cred: CredentialResponse) => {
       const googleToken = cred.credential
@@ -67,14 +73,15 @@ const Home: React.FC = () => {
       toast.success('Verified successfully')
 
       if (verifyGoogleToken)
-        window.localStorage.setItem('__twitter_token', googleToken)
+        window.localStorage.setItem('__twitter_token', verifyGoogleToken)
+      await queryClient.invalidateQueries(['current-user'])
     },
-    []
+    [queryClient]
   )
 
   return (
     <main className='grid grid-cols-12 h-screen container  mx-auto px-24  pt-2 '>
-      <div className=' col-span-3 ml-10'>
+      <div className=' col-span-3 ml-10 relative'>
         <div className='text-3xl h-fit w-fit hover:bg-gray-600 p-2 rounded-full cursor-pointer transition-all'>
           <BsTwitter />
         </div>
@@ -96,6 +103,21 @@ const Home: React.FC = () => {
             </button>
           </div>
         </div>
+        <div className='mt-4 absolute bottom-5'>
+          {user && user.profileImageURL && (
+            <div className='flex space-x-2 items-center bg-slate-900 px-3 py-2 rounded-full w-full'>
+              <Image
+                height={50}
+                width={50}
+                className='rounded-full'
+                src={user.profileImageURL}
+                alt={user.firstName}
+              />
+              <h4 className='text-xl'>{user.firstName}</h4>
+              <h4 className='text-xl'>{user.lastName}</h4>
+            </div>
+          )}
+        </div>
       </div>
       <div className=' col-span-5 border-x-[0.5px] border border-gray-600 h-screen  overflow-scroll'>
         <FeedCard />
@@ -106,10 +128,12 @@ const Home: React.FC = () => {
         <FeedCard />
       </div>
       <div className=' col-span-3'>
-        <div className='px-5 py-2 w-fit bg-slate-700 rounded-lg'>
-          <h1 className='text-xl'>New to twitter?</h1>
-          <GoogleLogin onSuccess={handleLoginWithGoogle} />
-        </div>
+        {!user && (
+          <div className='px-5 py-2 w-fit bg-slate-700 rounded-lg'>
+            <h1 className='text-xl'>New to twitter?</h1>
+            <GoogleLogin onSuccess={handleLoginWithGoogle} />
+          </div>
+        )}
       </div>
     </main>
   )
