@@ -1,11 +1,10 @@
 import { Tweet } from '@/gql/graphql'
 import Image from 'next/image'
+import Link from 'next/link'
 import React from 'react'
 import { AiOutlineHeart, AiOutlineShareAlt } from 'react-icons/ai'
 import { BiBookmark, BiMessageRounded } from 'react-icons/bi'
 import { FaRetweet } from 'react-icons/fa'
-import { LuBookMarked } from 'react-icons/lu'
-import { PiBookBookmark } from 'react-icons/pi'
 
 interface FeedCardProps {
   data: Tweet
@@ -28,7 +27,9 @@ const FeedCard: React.FC<FeedCardProps> = ({ data }) => {
         </div>
         <div className='col-span-11'>
           <h5>
-            {data?.author?.firstName} {data?.author?.lastName}
+            <Link href={`/${data?.author?.id}`}>
+              {data?.author?.firstName} {data?.author?.lastName}
+            </Link>
           </h5>
           <p>{data?.content}</p>
           <div className='grid grid-cols-4 mt-4 text-lg '>
