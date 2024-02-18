@@ -1,3 +1,4 @@
+import { Tweet } from '@/gql/graphql'
 import Image from 'next/image'
 import React from 'react'
 import { AiOutlineHeart, AiOutlineShareAlt } from 'react-icons/ai'
@@ -6,26 +7,30 @@ import { FaRetweet } from 'react-icons/fa'
 import { LuBookMarked } from 'react-icons/lu'
 import { PiBookBookmark } from 'react-icons/pi'
 
-const FeedCard: React.FC = () => {
+interface FeedCardProps {
+  data: Tweet
+}
+
+const FeedCard: React.FC<FeedCardProps> = ({ data }) => {
   return (
     <div className=' p-5 border  border-gray-600 border-r-0 border-b-0 border-l-0 hover:bg-slate-900 transition-all cursor-pointer'>
       <div className='grid grid-cols-12 gap-2'>
         <div className='col-span-1'>
-          <Image
-            src='https://avatars.githubusercontent.com/u/70911354?s=96&v=4'
-            alt='user image'
-            height={50}
-            width={50}
-            className='rounded-full'
-          />
+          {data?.author?.profileImageURL && (
+            <Image
+              src={data?.author?.profileImageURL}
+              alt='user iimage'
+              height={50}
+              width={50}
+              className='rounded-full'
+            />
+          )}
         </div>
         <div className='col-span-11'>
-          <h5>Dipak Giri</h5>
-          <p>
-            Freelancing is good. Successfully wrapped up one of my biggest
-            projects which has 350+ screens. 🤯🪴 Duration: 24 days Skills: UI
-            Design & prototype Software: @figma
-          </p>
+          <h5>
+            {data?.author?.firstName} {data?.author?.lastName}
+          </h5>
+          <p>{data?.content}</p>
           <div className='grid grid-cols-4 mt-4 text-lg '>
             <div className='col-span-1'>
               <BiMessageRounded />

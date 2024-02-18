@@ -32,6 +32,10 @@ body {
   scrollbar-width: none; /* Firefox */
 }
 
+*:focus {
+  outline: none;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
